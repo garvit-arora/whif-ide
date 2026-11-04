@@ -9,7 +9,7 @@
 AppId={{C19C384E-BEDA-43FD-9298-79B911F616B4}
 AppName=Wispr IDE Preview
 AppVersion=0.6.0
-AppVerName=Wispr IDE 0.6.0 Preview 1
+AppVerName=Wispr IDE 0.6.0 Preview 2
 AppPublisher=Garvit Arora
 AppPublisherURL=https://github.com/garvit-arora/whif-ide
 AppSupportURL=https://github.com/garvit-arora/whif-ide/issues
@@ -17,7 +17,7 @@ DefaultDirName={localappdata}\Programs\Wispr IDE Preview
 DefaultGroupName=Wispr IDE Preview
 PrivilegesRequired=lowest
 OutputDir={#OutputDir}
-OutputBaseFilename=Wispr-IDE-Setup-0.6.0-preview.1-x64
+OutputBaseFilename=Wispr-IDE-Setup-0.6.0-preview.2-x64
 Compression=lzma2/fast
 SolidCompression=yes
 WizardStyle=modern

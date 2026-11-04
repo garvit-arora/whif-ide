@@ -6,7 +6,7 @@ function harness(allow = true, trusted = true) {
 	const commands = [], approvals = [];
 	const extension = { id: 'demo.tools', isActive: false, packageJSON: { contributes: { commands: [{ command: 'demo.hello', title: 'Hello' }] } }, activate: async () => { commands.push('activate'); } };
 	const api = { workspace: { isTrusted: trusted, workspaceFolders: [{ name: 'Demo', uri: { scheme: 'file', fsPath: 'workspace' } }] }, window: { visibleTextEditors: [], activeTextEditor: null }, extensions: { all: [extension], getExtension: id => id === extension.id ? extension : null }, commands: { executeCommand: async (...args) => { commands.push(args); } } };
-	return { commands, approvals, tools: createIdeTools(api, async (...args) => { approvals.push(args); return allow; }) };
+	return { api, commands, approvals, tools: createIdeTools(api, async (...args) => { approvals.push(args); return allow; }) };
 }
 test('voice agent installs an extension only after approval', async () => {
 	const app = harness(); await app.tools.call('wispr_ide_action', { action: 'installExtension', extensionId: 'demo.tools' });
@@ -26,4 +26,27 @@ test('untrusted workspaces, arbitrary commands and remote VSIX paths are rejecte
 	await assert.rejects(harness(true, false).tools.call('wispr_ide_context', {}), /trust/);
 	await assert.rejects(harness().tools.call('wispr_ide_action', { action: 'installExtension', extensionId: 'https://evil.example/x.vsix' }), /publisher/);
 	await assert.rejects(harness().tools.call('exec', {}), /Unknown/);
+});
+
+test('search returns real registry IDs instead of only opening a view', async () => {
+	const app = harness();
+	const tools = createIdeTools(app.api, async () => true, { fetch: async url => {
+		assert.match(url, /^https:\/\/open-vsx.org\/api\/-\/search\?query=python/);
+		return { ok: true, json: async () => ({ extensions: [{ namespace: 'ms-python', name: 'python', displayName: 'Python', version: '1' }] }) };
+	} });
+	const result = await tools.call('wispr_ide_action', { action: 'searchExtensions', query: 'python' });
+	assert.equal(result.candidates[0].id, 'ms-python.python');
+});
+
+test('installation cannot claim success if the extension never appears', async () => {
+	const app = harness(); app.api.extensions.getExtension = () => undefined;
+	const tools = createIdeTools(app.api, async () => true, { installTimeout: 0 });
+	await assert.rejects(tools.call('wispr_ide_action', { action: 'installExtension', extensionId: 'demo.tools' }), /Installation is not confirmed/);
+});
+
+test('explicit screen reading returns image content only after approval', async () => {
+	const app = harness(); app.api.commands.executeCommand = async id => { assert.equal(id, 'wispr.captureIdeWindow'); return { imageUrl: 'data:image/png;base64,AAAA' }; };
+	const result = await app.tools.call('wispr_ide_screen', {});
+	assert.equal(result.contentItems[1].type, 'inputImage'); assert.equal(app.approvals.length, 1);
+	await assert.rejects(harness(false).tools.call('wispr_ide_screen', {}), /declined/);
 });

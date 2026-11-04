@@ -556,3 +556,83 @@ index 35917200da9..80a6572b5b0 100644
  	export const COLOR_THEME_LIGHT = 'Light 2026';
  	export const COLOR_THEME_HC_DARK = 'Default High Contrast';
  	export const COLOR_THEME_HC_LIGHT = 'Default High Contrast Light';
+diff --git a/src/vs/platform/extensionManagement/common/extensionGalleryService.ts b/src/vs/platform/extensionManagement/common/extensionGalleryService.ts
+index 41b763a2b46..c70bb2ac838 100644
+--- a/src/vs/platform/extensionManagement/common/extensionGalleryService.ts
++++ b/src/vs/platform/extensionManagement/common/extensionGalleryService.ts
+@@ -1220,7 +1220,7 @@ export abstract class AbstractExtensionGalleryService implements IExtensionGalle
+ 			for (let index = 0; index < extensions.length; index++) {
+ 				const extension = extensions[index];
+ 				setTelemetry(extension, ((query.pageNumber - 1) * query.pageSize) + index, options.source);
+-				if (areSameExtensions(extension.identifier, { id: this.productService.defaultChatAgent.extensionId, })) {
++				if (this.productService.defaultChatAgent && areSameExtensions(extension.identifier, { id: this.productService.defaultChatAgent.extensionId, })) {
+ 					defaultChatAgentExtension = extension;
+ 				} else {
+ 					result.push(extension);
+@@ -2044,15 +2044,17 @@ export abstract class AbstractExtensionGalleryService implements IExtensionGalle
+ 			}
+ 		}
+ 
+-		deprecated[this.productService.defaultChatAgent.extensionId.toLowerCase()] = {
+-			disallowInstall: true,
+-			extension: {
+-				id: this.productService.defaultChatAgent.chatExtensionId,
+-				displayName: 'GitHub Copilot Chat',
+-				autoMigrate: { storage: false, donotDisable: true },
+-				preRelease: this.productService.quality !== 'stable'
+-			}
+-		};
++		if (this.productService.defaultChatAgent) {
++			deprecated[this.productService.defaultChatAgent.extensionId.toLowerCase()] = {
++				disallowInstall: true,
++				extension: {
++					id: this.productService.defaultChatAgent.chatExtensionId,
++					displayName: 'GitHub Copilot Chat',
++					autoMigrate: { storage: false, donotDisable: true },
++					preRelease: this.productService.quality !== 'stable'
++				}
++			};
++		}
+ 
+ 		return { malicious, deprecated, search, autoUpdate };
+ 	}
+diff --git a/src/vs/platform/extensionManagement/test/common/extensionGalleryService.test.ts b/src/vs/platform/extensionManagement/test/common/extensionGalleryService.test.ts
+index b00fb9c3ad6..3cb80488864 100644
+--- a/src/vs/platform/extensionManagement/test/common/extensionGalleryService.test.ts
++++ b/src/vs/platform/extensionManagement/test/common/extensionGalleryService.test.ts
+@@ -192,6 +192,22 @@ suite('Extension Gallery Service', () => {
+ 		assert.strictEqual(headers['X-Market-User-Id'], headers2['X-Market-User-Id']);
+ 	});
+ 
++	test('marketplace search works without a bundled default chat agent', async () => {
++		Reflect.deleteProperty(productService, 'defaultChatAgent');
++		const requestService = new RecordingRequestService(() => requestContext(200, galleryQueryResponse([rawLatestExtension()])));
++		const galleryService = createExtensionGalleryService(requestService);
++		const result = await galleryService.query({ text: 'extension' }, CancellationToken.None);
++		assert.deepStrictEqual(result.firstPage.map(extension => extension.identifier.id), ['publisher.extension']);
++	});
++
++	test('control manifest works without a bundled default chat agent', async () => {
++		productService = { ...productService, extensionsGallery: { ...productService.extensionsGallery!, controlUrl: 'https://marketplace.test/control' } };
++		Reflect.deleteProperty(productService, 'defaultChatAgent');
++		const galleryService = createExtensionGalleryService(new RecordingRequestService(() => requestContext(200, { malicious: [] })));
++		const result = await galleryService.getExtensionsControlManifest();
++		assert.deepStrictEqual(Object.keys(result.deprecated), []);
++	});
++
+ 	test('getExtensions uses query API for extension info without uuid', async () => {
+ 		const requestService = new RecordingRequestService(options => options.type === 'POST' ? requestContext(200, galleryQueryResponse([])) : requestContext(404, {}));
+ 		const galleryService = createExtensionGalleryService(requestService);
+diff --git a/src/vs/platform/extensionManagement/node/extensionSignatureVerificationService.ts b/src/vs/platform/extensionManagement/node/extensionSignatureVerificationService.ts
+index 98535c5e648..d2e2a05ccfb 100644
+--- a/src/vs/platform/extensionManagement/node/extensionSignatureVerificationService.ts
++++ b/src/vs/platform/extensionManagement/node/extensionSignatureVerificationService.ts
+@@ -67,7 +67,7 @@ export class ExtensionSignatureVerificationService implements IExtensionSignatur
+ 	}
+ 
+ 	private async resolveVsceSign(): Promise<typeof vsceSign> {
+-		const mod = '@vscode/vsce-sign';
++		const mod = '@whif/openvsx-sign';
+ 		return import(mod);
+ 	}
+ 

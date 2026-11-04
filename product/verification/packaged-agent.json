@@ -1,0 +1,1 @@
+{"passed":true,"installed":"esbenp.prettier-vscode","version":"12.4.0","calls":[{"name":"wispr_ide_action","input":{"action":"searchExtensions","query":"Prettier"}},{"name":"wispr_ide_action","input":{"action":"installExtension","extensionId":"esbenp.prettier-vscode"}},{"name":"wispr_ide_screen","input":{}},{"name":"wispr_ide_screen","input":{}}]}

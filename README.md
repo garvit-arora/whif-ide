@@ -222,4 +222,12 @@ Changes remain local until an explicit push request. A commit, push, deployment 
 
 See [SECURITY.md](SECURITY.md) and [AUTH.md](AUTH.md). This is not an independent audit certificate.
 
-Architecture references: [React Router routing](https://reactrouter.com/start/declarative/routing), [Vite production builds](https://vite.dev/guide/build), [Google web-server OAuth](https://developers.google.com/identity/protocols/oauth2/web-server).
+Architecture references: [React Router routing](https://reactrouter.com/start/declarative/routing), [Vite production builds](https://vite.dev/guide/build), [Google web-server OAuth](https://developers.google.com/identity/protocols/oauth2/web-server). The [IDE reference review](product/IDE-REFERENCES.md) compares Zed, Continue and VSCodium and distinguishes future options from shipped features.
+
+### Preview 2 Extension and Screen Tools
+
+Preview 2 fixes extension gallery failures, verifies installs before reporting success, and adds explicitly approved IDE-window screenshots for Codex. Open VSX whole-package signatures are validated using the [registry-specific verifier](product/signature-verifier/README.md); proprietary Microsoft verifier binaries are not redistributed and signature checks are not disabled. Native publisher-trust prompts remain separate approvals. Only Open VSX extensions are supported, not every Microsoft Marketplace listing.
+
+![Packaged client after verified Prettier installation](images/desktop-extension-install.png)
+
+This is a captured test workspace with no private project content. For verification results and remaining limitations, see [release verification](product/packaging/verification.json). Screenshots can reveal visible code or secrets; inspect the window before approving image sharing with your provider.

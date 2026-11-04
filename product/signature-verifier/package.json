@@ -1,0 +1,6 @@
+{
+  "name": "whif-openvsx-verifier-runtime",
+  "private": true,
+  "version": "0.1.0",
+  "dependencies": { "yauzl": "3.4.0" }
+}
