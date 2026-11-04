@@ -19,5 +19,14 @@
 	"uninstallerExitCode": 0,
 	"physicalFlowDictationVerified": false,
 	"cleanVirtualMachineVerified": false,
-	"independentSecurityAuditPerformed": false
+	"independentSecurityAuditPerformed": false,
+	"websiteProductionAdvisories": 0,
+	"verifierProductionAdvisories": 0,
+	"parentWorkspaceAdvisories": {
+		"critical": 1,
+		"high": 17,
+		"moderate": 17,
+		"low": 7,
+		"packagedExposureFullyTriaged": false
+	}
 }

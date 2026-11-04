@@ -27,3 +27,7 @@ No unrestricted desktop clicking or background surveillance. Screenshots may con
 Wispr Flow is installed separately and required by the installer. Provider access, usage limits and billing still apply. Model availability is validated against the user's account. Physical microphone/hotkey dictation remains unverified in this environment. No clean-VM certification, code-signing certificate or independent security audit is claimed.
 
 See product/packaging/verification.json in the source for completed build and smoke-test checks. The React website uses /releases (not a standalone HTML page) and selects the latest published preview when no stable release exists.
+
+## Upstream security review
+
+A parent Code OSS dependency scan reports unresolved advisories, including a critical DOMPurify entry. Packaged exposure is not fully triaged. Do not use this unsigned preview as a hardened environment for untrusted repositories or sensitive production work. See product/packaging/SECURITY-CHECKS.md for scope and limitations. Website-only and new verifier dependency scans reported zero advisories.
