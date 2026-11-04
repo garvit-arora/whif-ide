@@ -1,0 +1,192 @@
+{
+	"name": "wispr-flow",
+	"displayName": "Wispr Flow",
+	"description": "Official Flow hotkey to local Codex or Claude Code, in the terminal.",
+	"publisher": "wispr",
+	"version": "0.6.0",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.102.0"
+	},
+	"main": "./extension.cjs",
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"categories": [
+		"Other"
+	],
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": "limited",
+			"description": "Writing files and running commands require workspace trust."
+		}
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "wispr.home",
+				"title": "Wispr ID: Open Home"
+			},
+			{
+				"command": "wispr.open",
+				"title": "Wispr ID: Open Voice and Text Prompt"
+			},
+			{
+				"command": "wispr.toggleVoice",
+				"title": "Wispr ID: Toggle Flow Auto-send"
+			},
+			{
+				"command": "wispr.stopAgent",
+				"title": "Wispr ID: Interrupt Coding Agent"
+			},
+			{
+				"command": "wispr.signIn",
+				"title": "Wispr ID: Sign In to Coding Agent"
+			},
+			{
+				"command": "wispr.newSession",
+				"title": "Wispr ID: New Coding Agent Session"
+			},
+			{
+				"command": "wispr.configureHotkey",
+				"title": "Wispr ID: Configure Official Flow Hotkey"
+			},
+			{
+				"command": "wispr.agentStatus",
+				"title": "Wispr ID: Check Installed Agent Login"
+			},
+			{
+				"command": "wispr.openDesktop",
+				"title": "Wispr ID: Open Official Wispr Flow"
+			},
+			{
+				"command": "wispr.connectContext",
+				"title": "Wispr ID: Connect Official Wispr Account Context"
+			},
+			{
+				"command": "wispr.addSkill",
+				"title": "Wispr ID: Add Agent Skill to Project"
+			},
+			{
+				"command": "wispr.sendPrompt",
+				"title": "Wispr ID: Send or Steer Agent Prompt"
+			},
+			{
+				"command": "wispr.openTerminal",
+				"title": "Wispr ID: Open Agent Terminal"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "wispr.open",
+				"key": "ctrl+alt+w",
+				"mac": "cmd+alt+w"
+			},
+			{
+				"command": "wispr.stopAgent",
+				"key": "ctrl+alt+escape",
+				"mac": "cmd+alt+escape"
+			},
+			{
+				"command": "wispr.home",
+				"key": "ctrl+alt+h",
+				"mac": "cmd+alt+h"
+			},
+			{
+				"command": "wispr.configureHotkey",
+				"key": "ctrl+alt+shift+w",
+				"mac": "cmd+alt+shift+w"
+			}
+		],
+		"configurationDefaults": {
+			"chat.disableAIFeatures": true,
+			"workbench.secondarySideBar.defaultVisibility": "hidden",
+			"workbench.colorTheme": "Wispr Focus",
+			"workbench.startupEditor": "none"
+		},
+		"mcpServerDefinitionProviders": [
+			{
+				"id": "wispr-flow.official",
+				"label": "Wispr Flow Official"
+			}
+		],
+		"configuration": {
+			"title": "Wispr ID Voice Agent",
+			"properties": {
+				"wispr.voice.hotkey": {
+					"type": "string",
+					"default": "Ctrl+Win",
+					"scope": "window",
+					"description": "The existing hotkey configured in official Wispr Flow. This observes the shortcut without registering or replacing it."
+				},
+				"wispr.voice.preferredAgent": {
+					"type": "string",
+					"enum": [
+						"codex",
+						"claude"
+					],
+					"default": "codex",
+					"scope": "window",
+					"description": "Try this installed CLI first, then another signed-in CLI if it is unavailable."
+				},
+				"wispr.voice.autoSend": {
+					"type": "boolean",
+					"default": true,
+					"scope": "window",
+					"description": "Automatically route verified Flow-owned transcript updates after the configured hotkey while Wispr ID is focused."
+				},
+				"wispr.voice.codexPath": {
+					"type": "string",
+					"default": "",
+					"scope": "machine",
+					"description": "Optional installed Codex executable path. Prompts are never interpolated into shell commands."
+				},
+				"wispr.voice.claudePath": {
+					"type": "string",
+					"default": "",
+					"scope": "machine",
+					"description": "Optional installed Claude Code executable path."
+				},
+				"wispr.voice.model": {
+					"type": "string",
+					"default": "gpt-6.1-sol",
+					"scope": "window",
+					"description": "Exact model advertised by the installed Codex account. Unavailable requested models are never silently substituted."
+				},
+				"wispr.voice.reasoningEffort": {
+					"type": "string",
+					"enum": [
+						"low",
+						"medium",
+						"high",
+						"xhigh",
+						"max",
+						"ultra"
+					],
+					"default": "low",
+					"scope": "window",
+					"description": "Reasoning effort advertised for the selected model. Low corresponds to light reasoning."
+				}
+			}
+		},
+		"viewsContainers": {
+			"panel": [
+				{
+					"id": "wispr-build",
+					"title": "Build",
+					"icon": "media/flow.svg"
+				}
+			]
+		},
+		"views": {
+			"wispr-build": [
+				{
+					"type": "webview",
+					"id": "wispr.prompt",
+					"name": "Build with Flow",
+					"initialSize": 420
+				}
+			]
+		}
+	}
+}

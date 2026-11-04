@@ -1,0 +1,558 @@
+diff --git a/build/gulpfile.vscode.ts b/build/gulpfile.vscode.ts
+index f1875976b70..9e05f511923 100644
+--- a/build/gulpfile.vscode.ts
++++ b/build/gulpfile.vscode.ts
+@@ -555,6 +555,10 @@ function prepareCopilotRipgrepShimTask(platform: string, arch: string, destinati
+ 	const outputDir = path.join(path.dirname(root), destinationFolderName);
+ 
+ 	return async () => {
++		// Wispr deliberately excludes the bundled Copilot extension.
++		if (product.applicationName === 'wispr-id') {
++			return;
++		}
+ 		// On Windows with win32VersionedUpdate, app resources live under a
+ 		// commit-hash prefix: {output}/{commitHash}/resources/app/
+ 		const versionedResourcesFolder = util.getVersionedResourcesFolder(platform, commit!);
+diff --git a/build/lib/extensions.ts b/build/lib/extensions.ts
+index d440640f34d..d349cb13488 100644
+--- a/build/lib/extensions.ts
++++ b/build/lib/extensions.ts
+@@ -549,6 +549,9 @@ function getSharedExtensionDependencyFolders(): { folder: string; destination: s
+  * but must be compiled from source and included in the build.
+  */
+ export function packageCopilotExtensionStream(): Stream {
++	if (productJson.applicationName === 'wispr-id') {
++		return es.readArray([]);
++	}
+ 	const extensionPath = path.join(root, 'extensions', 'copilot');
+ 	if (!fs.existsSync(extensionPath)) {
+ 		return es.readArray([]);
+diff --git a/build/npm/dirs.ts b/build/npm/dirs.ts
+index e5ec2366f74..b5775296582 100644
+--- a/build/npm/dirs.ts
++++ b/build/npm/dirs.ts
+@@ -79,7 +79,6 @@ export const separateRoots = [
+ 	'build/vite',
+ 	'remote',
+ 	'remote/web',
+-	'extensions/copilot',
+ ];
+ 
+ /**
+diff --git a/extensions/theme-defaults/package.json b/extensions/theme-defaults/package.json
+index f4d04e5c55e..5c3339968b1 100644
+--- a/extensions/theme-defaults/package.json
++++ b/extensions/theme-defaults/package.json
+@@ -13,6 +13,18 @@
+   },
+   "contributes": {
+     "themes": [
++      {
++        "id": "Wispr Focus",
++        "label": "Wispr Focus",
++        "uiTheme": "vs-dark",
++        "path": "./themes/wispr-focus.json"
++      },
++      {
++        "id": "Wispr Midnight",
++        "label": "Wispr Midnight",
++        "uiTheme": "vs-dark",
++        "path": "./themes/wispr-midnight.json"
++      },
+       {
+         "id": "Light 2026",
+         "label": "%light2026ThemeLabel%",
+diff --git a/package.json b/package.json
+index 332555e9778..fed15aec789 100644
+--- a/package.json
++++ b/package.json
+@@ -1,5 +1,5 @@
+ {
+-  "name": "code-oss-dev",
++  "name": "wispr-id-dev",
+   "version": "1.146.0",
+   "packageManager": "pnpm@12.16.0",
+   "distro": "c2fad9c2b70fca9d4ba5d689052bcf069661e333",
+@@ -24,7 +24,7 @@
+     "preinstall": "node build/npm/preinstall.ts",
+     "postinstall": "node build/npm/postinstall.ts",
+     "install-fast": "node build/npm/fast-install.ts",
+-    "compile": "npm-run-all2 -lp compile-client compile-copilot",
++    "compile": "pnpm run compile-client",
+     "compile-client": "pnpm run gulp compile",
+     "compile-copilot": "pnpm -C extensions/copilot run compile",
+     "build-fast": "node build/next/build-fast.ts",
+@@ -34,8 +34,8 @@
+     "codex:check-protocol": "node build/codex/check-protocol-sync.ts",
+     "agent-host:generate-copilot-meta": "node build/agentHost/generateCopilotMetadata.ts",
+     "agent-host:check-copilot-meta": "node build/agentHost/generateCopilotMetadata.ts --check",
+-    "watch": "npm-run-all2 -lp watch-client-transpile watch-client watch-extensions watch-copilot",
+-    "watch-transpile": "npm-run-all2 -lp watch-client-transpile watch-extensions watch-copilot",
++    "watch": "npm-run-all2 -lp watch-client-transpile watch-client watch-extensions",
++    "watch-transpile": "npm-run-all2 -lp watch-client-transpile watch-extensions",
+     "watchd": "deemon pnpm run watch",
+     "watch-webd": "deemon pnpm run watch-web",
+     "kill-watchd": "deemon --kill pnpm run watch",
+@@ -99,9 +99,11 @@
+     "symlink-local-component-explorer": "node build/npm/installWithoutSaving.ts . ../vscode-packages/js-component-explorer/packages/explorer ../vscode-packages/js-component-explorer/packages/cli -- build/rspack ../../../vscode-packages/js-component-explorer/packages/webpack-plugin ../../../vscode-packages/js-component-explorer/packages/explorer -- build/vite ../../../vscode-packages/js-component-explorer/packages/vite-plugin ../../../vscode-packages/js-component-explorer/packages/explorer",
+     "install-latest-component-explorer": "pnpm add -w @vscode/component-explorer@next @vscode/component-explorer-cli@next && pnpm -C build/rspack add @vscode/component-explorer-webpack-plugin@next @vscode/component-explorer@next && pnpm -C build/vite add @vscode/component-explorer-vite-plugin@next @vscode/component-explorer@next",
+     "setup-feed": "npm install --global @microsoft/artifacts-npm-credprovider --registry https://pkgs.dev.azure.com/artifacts-public/PublicTools/_packaging/AzureArtifacts/npm/registry/ && npm config set registry https://pkgs.dev.azure.com/monacotools/Monaco/_packaging/vscode/npm/registry/",
+-    "reauth-feed": "artifacts-npm-credprovider --force"
++    "reauth-feed": "artifacts-npm-credprovider --force",
++    "wispr:test": "node --test extensions/wispr-flow/test/*.test.cjs"
+   },
+   "dependencies": {
++    "@anthropic-ai/claude-agent-sdk": "0.3.304",
+     "@anthropic-ai/sdk": "^0.82.0",
+     "@devcontainers/cli": "0.88.0",
+     "@github/copilot-sdk": "1.0.29-preview.1",
+@@ -174,7 +176,6 @@
+     "zod": "^4.4.3"
+   },
+   "devDependencies": {
+-    "@anthropic-ai/claude-agent-sdk": "0.3.304",
+     "@eslint/compat": "^2.1.0",
+     "@modelcontextprotocol/sdk": "^1.29.0",
+     "@openai/codex": "0.163.0",
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index a9e2becdbd3..c1d720b52dc 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -27,6 +27,9 @@ importers:
+ 
+   .:
+     dependencies:
++      '@anthropic-ai/claude-agent-sdk':
++        specifier: 0.3.304
++        version: 0.3.304(@anthropic-ai/sdk@0.82.0(zod@4.4.3))(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(zod@4.4.3)
+       '@anthropic-ai/sdk':
+         specifier: ^0.82.0
+         version: 0.82.0(zod@4.4.3)
+@@ -238,9 +241,6 @@ importers:
+         specifier: ^4.4.3
+         version: 4.4.3
+     devDependencies:
+-      '@anthropic-ai/claude-agent-sdk':
+-        specifier: 0.3.304
+-        version: 0.3.304(@anthropic-ai/sdk@0.82.0(zod@4.4.3))(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(zod@4.4.3)
+       '@eslint/compat':
+         specifier: ^2.1.0
+         version: 2.1.0(eslint@10.8.0)
+diff --git a/product.json b/product.json
+index 64e1c4d2c64..abdd1d75337 100644
+--- a/product.json
++++ b/product.json
+@@ -1,40 +1,40 @@
+ {
+-	"nameShort": "Code - OSS",
+-	"nameLong": "Code - OSS",
+-	"applicationName": "code-oss",
+-	"dataFolderName": ".vscode-oss",
+-	"sharedDataFolderName": ".vscode-oss-shared",
+-	"win32MutexName": "vscodeoss",
++	"nameShort": "Wispr ID",
++	"nameLong": "Wispr ID",
++	"applicationName": "wispr-id",
++	"dataFolderName": ".wispr-id",
++	"sharedDataFolderName": ".wispr-id-shared",
++	"win32MutexName": "wisprid",
+ 	"licenseName": "MIT",
+ 	"licenseUrl": "https://github.com/microsoft/vscode/blob/main/LICENSE.txt",
+ 	"serverLicenseUrl": "https://github.com/microsoft/vscode/blob/main/LICENSE.txt",
+ 	"serverGreeting": [],
+ 	"serverLicense": [],
+ 	"serverLicensePrompt": "",
+-	"serverApplicationName": "code-server-oss",
+-	"serverDataFolderName": ".vscode-server-oss",
+-	"tunnelApplicationName": "code-tunnel-oss",
+-	"win32DirName": "Microsoft Code OSS",
+-	"win32NameVersion": "Microsoft Code OSS",
+-	"win32RegValueName": "CodeOSS",
+-	"win32x64AppId": "{{D77B7E06-80BA-4137-BCF4-654B95CCEBC5}",
+-	"win32arm64AppId": "{{D1ACE434-89C5-48D1-88D3-E2991DF85475}",
+-	"win32x64UserAppId": "{{CC6B787D-37A0-49E8-AE24-8559A032BE0C}",
+-	"win32arm64UserAppId": "{{3AEBF0C8-F733-4AD4-BADE-FDB816D53D7B}",
+-	"win32AppUserModelId": "Microsoft.CodeOSS",
+-	"win32ShellNameShort": "C&ode - OSS",
+-	"win32TunnelServiceMutex": "vscodeoss-tunnelservice",
+-	"win32TunnelMutex": "vscodeoss-tunnel",
+-	"darwinBundleIdentifier": "com.visualstudio.code.oss",
++	"serverApplicationName": "wispr-id-server",
++	"serverDataFolderName": ".wispr-id-server",
++	"tunnelApplicationName": "wispr-id-tunnel",
++	"win32DirName": "Wispr ID",
++	"win32NameVersion": "Wispr ID",
++	"win32RegValueName": "WisprID",
++	"win32x64AppId": "{{6DD6BF4A-B787-4173-9D65-0716C559FA4B}",
++	"win32arm64AppId": "{{8E9229C5-3F0F-40A0-B591-4B3D72F72B8D}",
++	"win32x64UserAppId": "{{F9099CCD-34AA-4CB9-8652-D4B743F82864}",
++	"win32arm64UserAppId": "{{1196334B-95FD-411B-AD93-FD6E8112019E}",
++	"win32AppUserModelId": "Wispr.WisprID",
++	"win32ShellNameShort": "Wispr ID",
++	"win32TunnelServiceMutex": "wisprid-tunnelservice",
++	"win32TunnelMutex": "wisprid-tunnel",
++	"darwinBundleIdentifier": "ai.wispr.id",
+ 	"darwinProfileUUID": "47827DD9-4734-49A0-AF80-7E19B11495CC",
+ 	"darwinProfilePayloadUUID": "CF808BE7-53F3-46C6-A7E2-7EDB98A5E959",
+-	"linuxDesktopName": "com.visualstudio.CodeOSS",
+-	"linuxIconName": "code-oss",
++	"linuxDesktopName": "ai.wispr.ID",
++	"linuxIconName": "wispr-id",
+ 	"licenseFileName": "LICENSE.txt",
+ 	"reportIssueUrl": "https://github.com/microsoft/vscode/issues/new",
+ 	"nodejsArtifactFeed": "",
+ 	"electronArtifactFeed": "",
+-	"urlProtocol": "code-oss",
++	"urlProtocol": "wispr-id",
+ 	"agentsTelemetryAppName": "agents",
+ 	"webviewContentExternalBaseUrlTemplate": "https://{{uuid}}.vscode-cdn.net/insider/ef65ac1ba57f57f2a3961bfe94aa20481caca4c6/out/vs/workbench/contrib/webview/browser/pre/",
+ 	"builtInExtensions": [
+@@ -87,82 +87,9 @@
+ 			}
+ 		}
+ 	],
+-	"defaultChatAgent": {
+-		"extensionId": "GitHub.copilot",
+-		"chatExtensionId": "GitHub.copilot-chat",
+-		"chatExtensionOutputId": "GitHub.copilot-chat.GitHub Copilot Chat.log",
+-		"chatExtensionOutputExtensionStateCommand": "github.copilot.debug.extensionState",
+-		"documentationUrl": "https://aka.ms/github-copilot-overview",
+-		"termsStatementUrl": "https://aka.ms/github-copilot-terms-statement",
+-		"privacyStatementUrl": "https://aka.ms/github-copilot-privacy-statement",
+-		"skusDocumentationUrl": "https://aka.ms/github-copilot-plans",
+-		"optimizeUsageDocumentationUrl": "https://aka.ms/token-usage-tips",
+-		"publicCodeMatchesUrl": "https://aka.ms/github-copilot-match-public-code",
+-		"managePlanUrl": "https://aka.ms/github-copilot-manage-plan",
+-		"upgradePlanUrl": "https://aka.ms/github-copilot-upgrade-plan",
+-		"signUpUrl": "https://aka.ms/github-sign-up",
+-		"provider": {
+-			"default": {
+-				"id": "github",
+-				"name": "GitHub"
+-			},
+-			"enterprise": {
+-				"id": "github-enterprise",
+-				"name": "GHE"
+-			},
+-			"google": {
+-				"id": "google",
+-				"name": "Google"
+-			},
+-			"apple": {
+-				"id": "apple",
+-				"name": "Apple"
+-			},
+-			"microsoft": {
+-				"id": "microsoft",
+-				"name": "Microsoft"
+-			}
+-		},
+-		"providerExtensionId": "vscode.github-authentication",
+-		"providerUriSetting": "github-enterprise.uri",
+-		"providerScopes": [
+-			[
+-				"read:user",
+-				"user:email",
+-				"repo",
+-				"workflow"
+-			],
+-			[
+-				"user:email"
+-			],
+-			[
+-				"read:user"
+-			]
+-		],
+-		"entitlementUrl": "https://api.github.com/copilot_internal/user",
+-		"entitlementSignupLimitedUrl": "https://api.github.com/copilot_internal/subscribe_limited_user",
+-		"chatQuotaExceededContext": "github.copilot.chat.quotaExceeded",
+-		"completionsQuotaExceededContext": "github.copilot.completions.quotaExceeded",
+-		"walkthroughCommand": "github.copilot.open.walkthrough",
+-		"completionsMenuCommand": "github.copilot.toggleStatusMenu",
+-		"chatRefreshTokenCommand": "github.copilot.refreshToken",
+-		"generateCommitMessageCommand": "github.copilot.git.generateCommitMessage",
+-		"resolveMergeConflictsCommand": "github.copilot.git.resolveMergeConflicts",
+-		"completionsAdvancedSetting": "github.copilot.advanced",
+-		"completionsEnablementSetting": "github.copilot.enable",
+-		"nextEditSuggestionsSetting": "github.copilot.nextEditSuggestions.enabled",
+-		"tokenEntitlementUrl": "https://api.github.com/copilot_internal/v2/token",
+-		"mcpRegistryDataUrl": "https://api.github.com/copilot/mcp_registry",
+-		"mcpConnectorsUrl": "https://api.github.com/copilot-connectors/api/v1",
+-		"managedSettingsUrl": "https://api.github.com/copilot_internal/managed_settings"
+-	},
+ 	"trustedExtensionAuthAccess": {
+-		"github": [
+-			"GitHub.copilot-chat"
+-		],
+-		"github-enterprise": [
+-			"GitHub.copilot-chat"
+-		],
++		"github": [],
++		"github-enterprise": [],
+ 		"microsoft": [
+ 			"vscode.github-authentication"
+ 		]
+@@ -206,45 +133,27 @@
+ 	],
+ 	"onboardingThemes": [
+ 		{
+-			"id": "dark-2026",
+-			"label": "Dark 2026",
+-			"themeId": "Dark 2026",
++			"id": "wispr-focus",
++			"label": "Wispr Focus",
++			"themeId": "Wispr Focus",
+ 			"type": "dark"
+ 		},
+ 		{
+-			"id": "hc-dark",
+-			"label": "Dark High Contrast",
+-			"themeId": "Default High Contrast",
+-			"type": "hcDark"
+-		},
+-		{
+-			"id": "solarized-dark",
+-			"label": "Solarized Dark",
+-			"themeId": "Solarized Dark",
++			"id": "wispr-midnight",
++			"label": "Wispr Midnight",
++			"themeId": "Wispr Midnight",
+ 			"type": "dark"
+-		},
+-		{
+-			"id": "light-2026",
+-			"label": "Light 2026",
+-			"themeId": "Light 2026",
+-			"type": "light"
+-		},
+-		{
+-			"id": "hc-light",
+-			"label": "Light High Contrast",
+-			"themeId": "Default High Contrast Light",
+-			"type": "hcLight"
+-		},
+-		{
+-			"id": "solarized-light",
+-			"label": "Solarized Light",
+-			"themeId": "Solarized Light",
+-			"type": "light"
+ 		}
+ 	],
+-	"builtInExtensionsEnabledWithAutoUpdates": [
+-		"GitHub.copilot-chat"
+-	],
++	"builtInExtensionsEnabledWithAutoUpdates": [],
+ 	"sessionsWindowAllowedExtensions": [],
+-	"voiceWsUrl": "wss://falcon-caas.mai.microsoft.com/voice-code/api/v1/realtime/voice"
++	"extensionsGallery": {
++		"serviceUrl": "https://open-vsx.org/vscode/gallery",
++		"itemUrl": "https://open-vsx.org/vscode/item",
++		"resourceUrlTemplate": "https://open-vsx.org/vscode/unpkg/{publisher}/{name}/{version}/{path}",
++		"extensionUrlTemplate": "https://open-vsx.org/vscode/gallery/{publisher}/{name}/latest"
++	},
++	"linkProtectionTrustedDomains": [
++		"https://open-vsx.org"
++	]
+ }
+diff --git a/src/vs/platform/extensionManagement/common/extensionsScannerService.ts b/src/vs/platform/extensionManagement/common/extensionsScannerService.ts
+index df80d99ff53..1544d2db6aa 100644
+--- a/src/vs/platform/extensionManagement/common/extensionsScannerService.ts
++++ b/src/vs/platform/extensionManagement/common/extensionsScannerService.ts
+@@ -352,6 +352,10 @@ export abstract class AbstractExtensionsScannerService extends Disposable implem
+ 	}
+ 
+ 	private async applyScanOptions(extensions: IRelaxedScannedExtension[], type: ExtensionType | 'development', scanOptions: { includeAllVersions?: boolean; includeInvalid?: boolean; pickLatest?: boolean } = {}): Promise<IRelaxedScannedExtension[]> {
++		if (this.productService.applicationName === 'wispr-id' && type === ExtensionType.System) {
++			const excluded = new Set(['github.copilot', 'github.copilot-chat', 'openai.chatgpt', 'openai.codex']);
++			extensions = extensions.filter(extension => !excluded.has(extension.identifier.id.toLowerCase()));
++		}
+ 		if (!scanOptions.includeAllVersions) {
+ 			extensions = this.dedupExtensions(type === ExtensionType.System ? extensions : undefined, type === ExtensionType.User ? extensions : undefined, type === 'development' ? extensions : undefined, await this.getTargetPlatform(), !!scanOptions.pickLatest);
+ 		}
+diff --git a/src/vs/workbench/browser/workbench.contribution.ts b/src/vs/workbench/browser/workbench.contribution.ts
+index 75c746cf9eb..ca5faeddef7 100644
+--- a/src/vs/workbench/browser/workbench.contribution.ts
++++ b/src/vs/workbench/browser/workbench.contribution.ts
+@@ -616,7 +616,7 @@ const registry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Con
+ 			'workbench.secondarySideBar.defaultVisibility': {
+ 				'type': 'string',
+ 				'enum': ['hidden', 'visibleInWorkspace', 'visible', 'maximizedInWorkspace', 'maximized'],
+-				'default': 'visibleInWorkspace',
++				'default': 'hidden',
+ 				'description': localize('secondarySideBarDefaultVisibility', "Controls the default visibility of the secondary side bar in workspaces or empty windows that are opened for the first time. Can be overridden by the agent sessions startup editor setting."),
+ 				'enumDescriptions': [
+ 					localize('workbench.secondarySideBar.defaultVisibility.hidden', "The secondary side bar is hidden by default."),
+diff --git a/src/vs/workbench/contrib/chat/browser/chat.shared.contribution.ts b/src/vs/workbench/contrib/chat/browser/chat.shared.contribution.ts
+index ec5087735ed..8f3c4075f7c 100644
+--- a/src/vs/workbench/contrib/chat/browser/chat.shared.contribution.ts
++++ b/src/vs/workbench/contrib/chat/browser/chat.shared.contribution.ts
+@@ -2366,13 +2366,13 @@ configurationRegistry.registerConfiguration({
+ 		[ChatAIDisabledSettingId]: {
+ 			type: 'boolean',
+ 			description: nls.localize('chat.disableAIFeatures', "Disable and hide built-in AI features provided by GitHub Copilot, including chat and inline suggestions."),
+-			default: false,
++			default: true,
+ 			scope: ConfigurationScope.WINDOW,
+ 		},
+ 		[ChatConfiguration.CopilotCliCommandEnabled]: {
+ 			type: 'boolean',
+ 			markdownDescription: nls.localize('chat.copilotCliCommand.enabled', "Controls whether integrated terminals include the `copilot` command that ships with VS Code. The command runs GitHub Copilot CLI and offers to install it when it's missing. A GitHub Copilot CLI that you installed yourself isn't affected."),
+-			default: true,
++			default: false,
+ 			scope: ConfigurationScope.APPLICATION,
+ 			policy: {
+ 				name: 'CopilotCliCommand',
+@@ -3291,7 +3291,9 @@ Registry.as<IEditorFactoryRegistry>(EditorExtensions.EditorFactory).registerEdit
+ 
+ registerWorkbenchContribution2(CopilotTelemetryContribution.ID, CopilotTelemetryContribution, WorkbenchPhase.BlockRestore);
+ registerWorkbenchContribution2(EditorChatUsageContribution.ID, EditorChatUsageContribution, WorkbenchPhase.BlockRestore);
+-registerWorkbenchContribution2(ChatSpeechToTextInitContribution.ID, ChatSpeechToTextInitContribution, WorkbenchPhase.BlockRestore);
++if (product.defaultChatAgent) {
++	registerWorkbenchContribution2(ChatSpeechToTextInitContribution.ID, ChatSpeechToTextInitContribution, WorkbenchPhase.BlockRestore);
++}
+ registerWorkbenchContribution2(ChatResolverContribution.ID, ChatResolverContribution, WorkbenchPhase.BlockStartup);
+ registerWorkbenchContribution2(ChatDebugResolverContribution.ID, ChatDebugResolverContribution, WorkbenchPhase.BlockStartup);
+ registerWorkbenchContribution2(PromptsDebugContribution.ID, PromptsDebugContribution, WorkbenchPhase.BlockRestore);
+@@ -3374,7 +3376,9 @@ registerChatFindActions();
+ registerAction2(ChatVoiceInputModeAction);
+ registerAction2(ChatVoiceInputModeToggleListenAction);
+ registerVoiceInputModeSimulateActions();
+-registerChatSpeechToTextActions();
++if (product.defaultChatAgent) {
++	registerChatSpeechToTextActions();
++}
+ registerConfigureSpeechInstructionsActions();
+ registerChatQueueActions();
+ registerQuickChatActions();
+diff --git a/src/vs/workbench/contrib/welcomeOnboarding/browser/welcomeOnboarding.contribution.ts b/src/vs/workbench/contrib/welcomeOnboarding/browser/welcomeOnboarding.contribution.ts
+index d725507e825..152713a8d66 100644
+--- a/src/vs/workbench/contrib/welcomeOnboarding/browser/welcomeOnboarding.contribution.ts
++++ b/src/vs/workbench/contrib/welcomeOnboarding/browser/welcomeOnboarding.contribution.ts
+@@ -3,24 +3,21 @@
+  *  Licensed under the MIT License. See License.txt in the project root for license information.
+  *--------------------------------------------------------------------------------------------*/
+ 
+-// Load styles for the remaining onboarding variant.
+-import './media/variationA.css';
+-
+ import { localize2 } from '../../../../nls.js';
+ import { Categories } from '../../../../platform/action/common/actionCommonCategories.js';
+ import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
+ import { InstantiationType, registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+ import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+ import { IOnboardingService } from '../common/onboardingService.js';
+-import { OnboardingVariationA } from './onboardingVariationA.js';
++import { WisprOnboarding } from '../../wispr/browser/wisprOnboarding.js';
+ 
+-registerSingleton(IOnboardingService, OnboardingVariationA, InstantiationType.Delayed);
++registerSingleton(IOnboardingService, WisprOnboarding, InstantiationType.Delayed);
+ 
+ registerAction2(class extends Action2 {
+ 	constructor() {
+ 		super({
+ 			id: 'workbench.action.welcomeOnboarding2026',
+-			title: localize2('welcomeOnboarding2026', "Welcome Onboarding 2026"),
++			title: localize2('welcomeOnboarding2026', "Welcome to Wispr ID"),
+ 			category: Categories.Developer,
+ 			f1: true,
+ 		});
+diff --git a/src/vs/workbench/services/accounts/browser/defaultAccount.ts b/src/vs/workbench/services/accounts/browser/defaultAccount.ts
+index 00164eda551..45fa2fe84ea 100644
+--- a/src/vs/workbench/services/accounts/browser/defaultAccount.ts
++++ b/src/vs/workbench/services/accounts/browser/defaultAccount.ts
+@@ -148,14 +148,17 @@ export class DefaultAccountService extends Disposable implements IDefaultAccount
+ 	private readonly _onDidChangeManagedSettingsFreshness = this._register(new Emitter<IManagedSettingsFreshness>());
+ 	readonly onDidChangeManagedSettingsFreshness = this._onDidChangeManagedSettingsFreshness.event;
+ 
+-	private readonly defaultAccountConfig: IDefaultAccountConfig;
++	private readonly defaultAccountConfig: IDefaultAccountConfig | undefined;
+ 	private defaultAccountProvider: IDefaultAccountProvider | null = null;
+ 
+ 	constructor(
+ 		@IProductService productService: IProductService,
+ 	) {
+ 		super();
+-		this.defaultAccountConfig = toDefaultAccountConfig(productService.defaultChatAgent);
++		this.defaultAccountConfig = productService.defaultChatAgent ? toDefaultAccountConfig(productService.defaultChatAgent) : undefined;
++		if (!this.defaultAccountConfig) {
++			this.initBarrier.open();
++		}
+ 	}
+ 
+ 	async getDefaultAccount(): Promise<IDefaultAccount | null> {
+@@ -168,7 +171,7 @@ export class DefaultAccountService extends Disposable implements IDefaultAccount
+ 			return this.defaultAccountProvider.getDefaultAccountAuthenticationProvider();
+ 		}
+ 		return {
+-			...this.defaultAccountConfig.authenticationProvider.default,
++			...(this.defaultAccountConfig?.authenticationProvider.default ?? { id: '', name: '' }),
+ 			enterprise: false
+ 		};
+ 	}
+@@ -1665,6 +1668,9 @@ class DefaultAccountProviderContribution extends Disposable implements IWorkbenc
+ 		@IDefaultAccountService defaultAccountService: IDefaultAccountService,
+ 	) {
+ 		super();
++		if (!productService.defaultChatAgent) {
++			return;
++		}
+ 		const defaultAccountProvider = this._register(instantiationService.createInstance(DefaultAccountProvider, toDefaultAccountConfig(productService.defaultChatAgent)));
+ 		defaultAccountService.setDefaultAccountProvider(defaultAccountProvider);
+ 	}
+diff --git a/src/vs/workbench/services/accounts/test/browser/defaultAccount.test.ts b/src/vs/workbench/services/accounts/test/browser/defaultAccount.test.ts
+index ee042bc05d5..b62df4b892e 100644
+--- a/src/vs/workbench/services/accounts/test/browser/defaultAccount.test.ts
++++ b/src/vs/workbench/services/accounts/test/browser/defaultAccount.test.ts
+@@ -38,6 +38,27 @@ import { IManagedSettingsResponse } from '../../browser/managedSettings.js';
+ import { TestProductService } from '../../../../test/common/workbenchTestServices.js';
+ import { AccountPolicyGateState, AccountPolicyService } from '../../../policies/common/accountPolicyService.js';
+ 
++suite('DefaultAccountService without a default chat agent', () => {
++	const disposables = ensureNoDisposablesAreLeakedInTestSuite();
++
++	test('initializes without requiring an upstream AI account', async () => {
++		const productService: IProductService = Object.create(TestProductService);
++		Object.defineProperty(productService, 'defaultChatAgent', { value: undefined });
++		const service = disposables.add(new DefaultAccountService(productService));
++		assert.deepStrictEqual({
++			account: await service.getDefaultAccount(),
++			refreshed: await service.refresh(),
++			signedIn: await service.signIn(),
++			provider: service.getDefaultAccountAuthenticationProvider(),
++		}, {
++			account: null,
++			refreshed: null,
++			signedIn: null,
++			provider: { id: '', name: '', enterprise: false },
++		});
++	});
++});
++
+ suite('DefaultAccountProvider', () => {
+ 
+ 	const disposables = ensureNoDisposablesAreLeakedInTestSuite();
+diff --git a/src/vs/workbench/services/chat/common/chatEntitlementService.ts b/src/vs/workbench/services/chat/common/chatEntitlementService.ts
+index 29ce4272e78..d6615979605 100644
+--- a/src/vs/workbench/services/chat/common/chatEntitlementService.ts
++++ b/src/vs/workbench/services/chat/common/chatEntitlementService.ts
+@@ -456,6 +456,7 @@ export class ChatEntitlementService extends Disposable implements IChatEntitleme
+ 		}
+ 
+ 		if (!productService.defaultChatAgent) {
++			ChatEntitlementContextKeys.Setup.hidden.bindTo(this.contextKeyService).set(true);
+ 			return; // we need a default chat agent configured going forward from here
+ 		}
+ 
+diff --git a/src/vs/workbench/services/themes/common/workbenchThemeService.ts b/src/vs/workbench/services/themes/common/workbenchThemeService.ts
+index 35917200da9..80a6572b5b0 100644
+--- a/src/vs/workbench/services/themes/common/workbenchThemeService.ts
++++ b/src/vs/workbench/services/themes/common/workbenchThemeService.ts
+@@ -40,7 +40,7 @@ export enum ThemeSettings {
+ }
+ 
+ export namespace ThemeSettingDefaults {
+-	export const COLOR_THEME_DARK = 'Dark 2026';
++	export const COLOR_THEME_DARK = 'Wispr Focus';
+ 	export const COLOR_THEME_LIGHT = 'Light 2026';
+ 	export const COLOR_THEME_HC_DARK = 'Default High Contrast';
+ 	export const COLOR_THEME_HC_LIGHT = 'Default High Contrast Light';

@@ -1,0 +1,24 @@
+{
+	"name": "whif-ide-website",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Wispr IDE landing page, downloads and Google website login",
+	"scripts": {
+		"dev": "vite --host 127.0.0.1",
+		"build": "vite build",
+		"start": "node serve.cjs",
+		"test": "node --test auth.test.cjs"
+	},
+	"engines": {
+		"node": ">=22"
+	},
+	"packageManager": "pnpm@10.28.2",
+	"dependencies": {
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"react-router-dom": "^7.13.0"
+	},
+	"devDependencies": {
+		"vite": "^7.3.0"
+	}
+}

@@ -1,0 +1,18 @@
+{
+	"release": "v0.6.0-preview.1",
+	"platform": "windows-x64",
+	"installer": "Wispr-IDE-Setup-0.6.0-preview.1-x64.exe",
+	"sha256": "7025e48630904794b1cb31d5c2c2cc34e4ca408089a7a2befa2476c942f20ce5",
+	"bytes": 614271683,
+	"codeSigning": "unsigned",
+	"extensionTestsPassed": 43,
+	"websiteOauthTestsPassed": true,
+	"liveCodexIdeContextToolPassed": true,
+	"packagedHomeAndBuildPassed": true,
+	"installerExitCode": 0,
+	"installedCopyHomeAndBuildPassed": true,
+	"uninstallerExitCode": 0,
+	"physicalFlowDictationVerified": false,
+	"cleanVirtualMachineVerified": false,
+	"independentSecurityAuditPerformed": false
+}

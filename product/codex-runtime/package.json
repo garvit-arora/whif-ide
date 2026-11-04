@@ -1,0 +1,8 @@
+{
+	"name": "wispr-local-codex-runtime",
+	"private": true,
+	"packageManager": "pnpm@10.28.2",
+	"dependencies": {
+		"@openai/codex": "0.166.0"
+	}
+}
