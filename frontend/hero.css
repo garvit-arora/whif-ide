@@ -1,0 +1,113 @@
+/* Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT License. */
+/* Give each object a layout cell; rotations never determine content placement. */
+.product-story, .agent-story, .product-faq { padding: 55px 7% 90px; }
+.product-story { background: #e8edcf; color: var(--ink); }
+.story-intro { max-width: 840px; margin: 75px 0 65px; }
+.story-kicker { font: italic 21px Georgia, serif; }
+.story-intro h2, .agent-layout h2, .faq-layout h2 { font-size: clamp(36px, 4.6vw, 68px); line-height: 1.05; letter-spacing: -.055em; font-weight: 400; margin: 25px 0; }
+.story-intro > p, .agent-layout > div > p { max-width: 490px; font-size: 16px; line-height: 1.8; opacity: .75; }
+.workflow-steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 45px; }
+.workflow-steps li { border-top: 1px solid #1a1a1a40; padding-top: 25px; }
+.workflow-steps li > span { font: italic 38px Georgia, serif; opacity: .5; }
+.workflow-steps h3, .agent-cards h3 { font-size: 25px; font-weight: 400; letter-spacing: -.7px; }
+.workflow-steps p, .agent-cards p { font-size: 14px; line-height: 1.8; opacity: .75; }
+.workflow-steps kbd { font-size: 11px; border: 1px solid #1a1a1a40; border-radius: 4px; padding: 3px; white-space: nowrap; }
+.agent-story { background: #202522; }
+.agent-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 100px; margin-top: 75px; }
+.agent-cards article { padding: 25px 0; border-top: 1px solid #ffffff30; }
+.agent-cards article > span { color: #d5edb6; font-size: 9px; letter-spacing: 1.5px; }
+.agent-cards h3 { margin: 15px 0; }
+.agent-cards p { margin-bottom: 0; }
+.product-faq { background: var(--paper); color: var(--ink); }
+.faq-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 70px; margin-top: 55px; }
+.faq-layout h2 { margin-top: 0; }
+.faq-layout details { border-bottom: 1px solid #18191b30; padding: 23px 0; }
+.faq-layout details:first-child { padding-top: 0; }
+.faq-layout summary { cursor: pointer; font-size: 18px; line-height: 1.5; }
+.faq-layout details p { font-size: 14px; line-height: 1.8; opacity: .75; max-width: 600px; }
+.faq-layout details a { font-size: 13px; text-decoration: underline; }
+.faq-layout summary:focus-visible { outline: 3px solid var(--blue); outline-offset: 6px; }
+@media (max-width: 750px) {
+	.workflow-steps, .agent-layout, .faq-layout { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+	.product-story, .agent-story, .product-faq { padding: 40px 7% 60px; }
+	.story-intro, .agent-layout { margin-top: 45px; }
+	.story-intro { margin-bottom: 40px; }
+}
+.hero {
+	height: auto;
+	min-height: max(940px, 100svh);
+	max-height: none;
+	display: grid;
+	grid-template-columns: 1fr 1.5fr 1.2fr;
+	grid-template-rows: auto 300px auto auto;
+	grid-template-areas: "eyebrow eyebrow eyebrow" "note title keys" "copy voice editor" "foot foot foot";
+	align-items: center;
+	gap: 52px 48px;
+	padding: 145px 7% 28px;
+}
+.hero .eyebrow, .hero h1, .hero .floating, .hero-copy, .hero-foot {
+	position: relative;
+	inset: auto;
+}
+.hero .eyebrow { grid-area: eyebrow; }
+.hero h1 {
+	grid-area: title;
+	justify-self: center;
+	font-size: clamp(70px, 9vw, 150px);
+	transform: none;
+	letter-spacing: -.085em;
+}
+.hero .word-id { margin-left: .18em; }
+.hero .note {
+	grid-area: note;
+	justify-self: start;
+	width: 172px;
+	transform: rotate(-9deg);
+}
+.hero .note p { font-size: 25px; }
+.hero .keys { grid-area: keys; justify-self: end; transform: rotate(9deg); }
+.hero .keys kbd { padding: 16px 11px; font-size: 16px; }
+.hero .keys > span { top: 78px; }
+.hero-copy { grid-area: copy; align-self: center; }
+.hero-copy h2 { font-size: clamp(36px, 3.5vw, 56px); letter-spacing: -2.5px; line-height: 1.02; }
+.hero-copy p { font-size: 14px; }
+.hero .voice { grid-area: voice; justify-self: center; width: 220px; transform: rotate(-5deg); }
+.hero .editor { grid-area: editor; justify-self: end; width: min(100%, 390px); transform: rotate(5deg); }
+.hero .editor pre { font-size: 10px; }
+.hero .caption { left: 0; width: 100%; text-align: center; font-size: 13px; }
+.hero-foot { grid-area: foot; margin-top: 35px; align-items: center; gap: 24px; }
+@media (max-width: 1100px) {
+	.hero {
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: auto auto auto auto auto;
+		grid-template-areas: "eyebrow eyebrow" "title title" "copy editor" "voice keys" "foot foot";
+		gap: 55px 45px;
+		padding-top: 135px;
+	}
+	.hero h1 { font-size: 15vw; }
+	.hero .note { display: none; }
+	.hero .keys { justify-self: center; }
+	.hero .voice { justify-self: start; }
+	.hero .editor { width: min(100%, 380px); }
+}
+@media (max-width: 650px) {
+	.hero {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: repeat(6, auto);
+		grid-template-areas: "eyebrow" "title" "copy" "editor" "voice" "foot";
+		gap: 36px;
+		min-height: 0;
+		padding: 120px 7% 25px;
+	}
+	.hero .eyebrow { font-size: 7px; line-height: 1.6; letter-spacing: 1.3px; }
+	.hero h1 { font-size: 17vw; }
+	.hero-copy { text-align: center; }
+	.hero-copy h2 { font-size: clamp(36px, 10vw, 49px); }
+	.hero .keys { display: none; }
+	.hero .editor { justify-self: center; width: min(92%, 360px); transform: rotate(3deg); margin: 20px 0 25px; }
+	.hero .voice { justify-self: center; width: 220px; transform: rotate(-3deg); padding: 19px; }
+	.hero .voice-label { font-size: 8px; }
+	.hero .wave { height: 55px; gap: 6px; }
+	.hero #voice-status { font-size: 12px; }
+	.hero-foot { margin-top: 10px; flex-wrap: wrap; justify-content: center; text-align: center; gap: 14px; }
+}
