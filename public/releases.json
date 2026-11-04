@@ -4,6 +4,26 @@
 		{
 			"assets": [
 				{
+					"browser_download_url": "https://github.com/garvit-arora/whif-ide/releases/download/v0.6.0-preview.2/SHA256SUMS.txt",
+					"name": "SHA256SUMS.txt",
+					"size": 106
+				},
+				{
+					"browser_download_url": "https://github.com/garvit-arora/whif-ide/releases/download/v0.6.0-preview.2/Wispr-IDE-Setup-0.6.0-preview.2-x64.exe",
+					"name": "Wispr-IDE-Setup-0.6.0-preview.2-x64.exe",
+					"size": 614315282
+				}
+			],
+			"body": "# Wispr IDE 0.6.0 Preview 2 - Windows x64\n\nUnsigned preview for early testing, not a security-certified or production-stable release.\n\n## Fixed\n\n- Extension gallery search and control manifests no longer crash when the bundled default chat agent is absent.\n- Agent extension searches return actual Open VSX publisher IDs.\n- Installation is reported as successful only after the extension appears in the IDE registry.\n- Tool progress and failures are visible in the agent output.\n- Packaged Open VSX installations use a registry-specific Ed25519 signature verifier instead of a missing proprietary runtime. Signature failures remain blocking.\n- Explicit screen-reading requests can share a real image of the current IDE window with Codex, after approval.\n\n## Use\n\n1. Install the official Wispr Flow app from https://wisprflow.ai/download.\n2. Download the x64 setup EXE and compare its SHA-256 against SHA256SUMS.txt. Keep Windows security protections enabled.\n3. Install the preview, open a trusted local project and sign into your own supported Codex account.\n4. Configure the matching Flow shortcut with Ctrl+Alt+Shift+W. Ctrl+Alt+W opens Build; Ctrl+Alt+H opens Home.\n5. Ask to search for and install an extension. Review the tool approval and the IDE's separate publisher-trust prompt.\n6. Ask to read the IDE screen. Approve image sharing only after checking that no sensitive content is visible.\n\n## Limits\n\nNo unrestricted desktop clicking or background surveillance. Screenshots may contain visible code or secrets and are sent to your selected provider only with approval. Third-party commands remain allowlisted. Extensions must be available on Open VSX and may require reload, account setup or additional interaction; not every Microsoft Marketplace extension is available there.\n\nWispr Flow is installed separately and required by the installer. Provider access, usage limits and billing still apply. Model availability is validated against the user's account. Physical microphone/hotkey dictation remains unverified in this environment. No clean-VM certification, code-signing certificate or independent security audit is claimed.\n\nSee product/packaging/verification.json in the source for completed build and smoke-test checks. The React website uses /releases (not a standalone HTML page) and selects the latest published preview when no stable release exists.\n\n## Upstream security review\n\nA parent Code OSS dependency scan reports unresolved advisories, including a critical DOMPurify entry. Packaged exposure is not fully triaged. Do not use this unsigned preview as a hardened environment for untrusted repositories or sensitive production work. See product/packaging/SECURITY-CHECKS.md for scope and limitations. Website-only and new verifier dependency scans reported zero advisories.\n",
+			"html_url": "https://github.com/garvit-arora/whif-ide/releases/tag/v0.6.0-preview.2",
+			"name": "Wispr IDE 0.6.0 Preview 2 - Extension and Screen Hotfix",
+			"prerelease": true,
+			"published_at": "2026-11-04T21:00:23Z",
+			"tag_name": "v0.6.0-preview.2"
+		},
+		{
+			"assets": [
+				{
 					"browser_download_url": "https://github.com/garvit-arora/whif-ide/releases/download/v0.6.0-preview.1/SHA256SUMS.txt",
 					"name": "SHA256SUMS.txt",
 					"size": 106
