@@ -6,6 +6,8 @@ const path = require('node:path');
 const { handleAuth } = require('./auth.cjs');
 const files = new Map([['/', 'index.html'], ['/index.html', 'index.html'], ['/style.css', 'style.css'], ['/hero.css', 'hero.css'], ['/vela.css', 'vela.css'], ['/app.js', 'app.js'], ['/releases.json', 'releases.json']]);
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
+files.set('/releases.html', 'releases.html');
+files.set('/releases.js', 'releases.js');
 const server = http.createServer(async (request, response) => {
 	response.setHeader('X-Content-Type-Options', 'nosniff');
 	response.setHeader('Referrer-Policy', 'no-referrer');

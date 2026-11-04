@@ -33,7 +33,7 @@ Deploy `index.html`, `style.css`, `hero.css`, `vela.css`, `app.js`, and `release
 
 ## Releases
 
-The release cabinet is the `#releases` section, reachable directly using `index.html#releases`. It supports version/note search, stable/preview filters, release notes, and asset links. No release has been invented or preloaded.
+The release cabinet lives on the dedicated `releases.html` downloads page. All IDE download and release links on the landing page lead there. It supports version/note search, stable/preview filters, release notes, and asset links. No release has been invented or preloaded. Include `releases.html` and `releases.js` in static deployments alongside the other public files.
 
 ### Connect GitHub Later
 
